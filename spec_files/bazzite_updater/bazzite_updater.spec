@@ -1,9 +1,9 @@
-%global orgname io.github.rfrench3.bazzite_updater
+%global orgname io.github.rfrench3.zeerethos_updater
 
-Name:           bazzite_updater
+Name:           zeerethos_updater
 Version:        0.4.2
 Release:        1%{?dist}
-Summary:        Update your Bazzite system
+Summary:        Update your Zeereth system
 
 License:        GPL-2.0-or-later
 URL:            https://github.com/rfrench3/%{name}
@@ -68,4 +68,4 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/%{orgname}.deskto
 
 %changelog
 * Thu Feb 05 2026 Robert French
-- Initial rpm build of Bazzite Updater
+- Initial rpm build of Zeereth Updater
