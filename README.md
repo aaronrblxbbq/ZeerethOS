@@ -17,6 +17,7 @@
 - [Table of Contents](#table-of-contents)
   - [About \& Features](#about--features)
     - [Desktop](#desktop)
+    - [Installation](#installation)
     - [Steam Deck/Home Theater PCs (HTPCs)](#steam-deckhome-theater-pcs-htpcs)
       - [Alternative Handhelds](#alternative-handhelds)
     - [GNOME](#gnome)
@@ -39,9 +40,9 @@
 
 [Please see our website](https://bazzite.gg/) for a newcomer-friendly explanation of Bazzite. This readme will cover everything in-depth.
 
-[Bazzite](https://bazzite.gg/) is a custom [Fedora Atomic](https://fedoraproject.org/atomic-desktops/) image built with [cloud native](https://universal-blue.org/#cloud-native) technology that brings the best of Linux gaming to **all of your devices - including your favorite handheld**.
+Zeereth, made from [Bazzite](https://bazzite.gg/) is a custom [Fedora Atomic](https://fedoraproject.org/atomic-desktops/) image built with [cloud native](https://universal-blue.org/#cloud-native) technology that brings the best of Linux gaming to **all of your devices - including your favorite handheld**.
 
-Bazzite is built from [ublue-os/main](https://github.com/ublue-os/main) and [ublue-os/nvidia](https://github.com/ublue-os/nvidia) using [Fedora](https://fedoraproject.org/) technology, which means expanded hardware support and built in drivers are included. Additionally, Bazzite adds the following features:
+Zeereth is built from [ublue-os/main](https://github.com/ublue-os/main) and [ublue-os/nvidia](https://github.com/ublue-os/nvidia) using [Fedora](https://fedoraproject.org/) technology, which means expanded hardware support and built in drivers are included. Additionally, Bazzite adds the following features:
 
 - Uses the [bazzite kernel](https://github.com/bazzite-org/kernel-bazzite) to achieve HDR and expanded hardware support, among numerous other included patches - based off of the [fsync kernel](https://copr.fedorainfracloud.org/coprs/sentry/kernel-fsync/).
 - HDR available in Game mode.
@@ -75,24 +76,29 @@ Bazzite is built from [ublue-os/main](https://github.com/ublue-os/main) and [ubl
 
 ### Desktop
 
-Common variant available as `bazzite`, suitable for desktop computers.
+Common variant available as `bazzite`(Zeereth), suitable for desktop computers.
 
 - Automatic updates for the OS, Flatpaks, and more - powered by [ublue-update](https://github.com/ublue-os/ublue-update) and [topgrade](https://github.com/topgrade-rs/topgrade).
 
 > [!IMPORTANT]
-> **ISOs can be downloaded from our [website](https://download.bazzite.gg), and a helpful install guide can be found [here](https://docs.bazzite.gg/General/Installation_Guide/).**
+> **ISOs are not available. What you need to do, is to install Fedora Kinoite or Silverblue, and rebase your Fedora Atomic from the next section**
+
+
+### Installation
+
+**Only way to install Zeereth, is to use our [Secondary](https://github.com/aaronrblxbbq/Zeereth) option with bootc or to use the guide below to rebase.**
 
 Rebase from an existing upstream Fedora Atomic to this image if you want **Open Source GPU Drivers**:
 (Please note: Mesa's Open Source option for NVIDIA GPUs, NVK is still prone to errors at the time of writing, for any issues relating to NVK [please submit a report with Mesa]([url](https://docs.mesa3d.org/bugs.html)), not Ublue/Bazzite)
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite:stable
 ```
 
 or for devices with Nvidia GPUs wanting the **NVIDIA Proprietary Drivers**:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite-nvidia:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite-nvidia:stable
 ```
 
 **For users with Secure Boot enabled:** Follow our [secure boot documentation](#secure-boot) prior to rebasing.
@@ -130,12 +136,12 @@ Variant designed for usage as an alternative to SteamOS on the Steam Deck, and f
 - More information can be found [here](https://docs.bazzite.gg/Handheld_and_HTPC_edition/Steam_Gaming_Mode/) on the Bazzite Steam Deck images.
 
 > [!IMPORTANT]
-> **ISOs can be downloaded from our [website](https://download.bazzite.gg), and a helpful install guide can be found [here](https://docs.bazzite.gg/General/Installation_Guide/).**
+> **ISO Images are not available, and possibly won't ever be. Follow [this](#installation) guide to install.**
 
 Rebase from an existing upstream Fedora Atomic to this image:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite-deck:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite-deck:stable
 ```
 
 #### Alternative Handhelds
@@ -162,24 +168,24 @@ Builds with the GNOME desktop environment are available in both desktop and deck
 - Automatic updates for the [Firefox GNOME theme](https://github.com/rafaelmardojai/firefox-gnome-theme) and [Thunderbird GNOME theme](https://github.com/rafaelmardojai/thunderbird-gnome-theme). <sup><sub>(If installed)</sub></sup>
 
 > [!IMPORTANT]
-> **ISOs can be downloaded from our [website](https://download.bazzite.gg), and a helpful install guide can be found [here](https://docs.bazzite.gg/General/Installation_Guide/).**
+> **ISO Images are not available, and possibly won't ever be. Follow [this](#installation) guide to install.**
 
 Rebase from an existing upstream Fedora Atomic to this image:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite-gnome:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite-gnome:stable
 ```
 
 To rebase an existing ostree system to a Desktop Environment with the **Proprietary NVIDIA Drivers** release:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite-gnome-nvidia:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite-gnome-nvidia:stable
 ```
 
 To rebase an existing ostree system to the **Steam Deck/HTPC** release:
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/bazzite-deck-gnome:stable
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/aaronrblxbbq/bazzite-deck-gnome:stable
 ```
 
 **For users with Secure Boot enabled:** Follow our [secure boot documentation](#secure-boot) prior to rebasing.
@@ -236,7 +242,7 @@ View [additional documentation](http://docs.bazzite.gg/) surrounding the project
 These images are signed with sigstore's [cosign](https://docs.sigstore.dev/cosign/key_management/overview/). You can verify the signature by downloading the `cosign.pub` key from this repo and running the following command:
 
 ```bash
-cosign verify --key cosign.pub ghcr.io/ublue-os/bazzite
+cosign verify --key cosign.pub ghcr.io/aaronrblxbbq/zeerethos
 ```
 
 ## Secure Boot
@@ -301,4 +307,4 @@ We also ship a config for the popular [pull app](https://github.com/apps/pull) i
 
 - Follow Universal Blue on [Mastodon](https://fosstodon.org/@UniversalBlue).
 
-[**View the full list of Bazzite resources and social presence**](https://docs.bazzite.gg/Resources/).
+[**View the full list of Zeereths (redirects to bazzites website) resources and social presence**](https://docs.bazzite.gg/Resources/).
