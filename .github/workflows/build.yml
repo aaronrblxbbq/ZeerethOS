@@ -293,12 +293,12 @@ jobs:
             io.artifacthub.package.logo-url=https://raw.githubusercontent.com/ublue-os/bazzite/main/repo_content/logo.png
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/ublue-os/bazzite/refs/heads/main/README.md
             org.opencontainers.image.created=<timestamp>
-            org.opencontainers.image.description=Bazzite is a custom image that brings the best of Linux gaming to all of your devices - including your favorite handheld.
+            org.opencontainers.image.description=Zeereth is a custom image that brings the best of Linux gaming to all of your devices - including your favorite handheld.
             org.opencontainers.image.licenses=Apache-2.0
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://bazzite.gg
-            org.opencontainers.image.title=Bazzite
-            org.opencontainers.image.vendor=Universal Blue
+            org.opencontainers.image.title=Zeereth
+            org.opencontainers.image.vendor=Zeereth Studios
             org.opencontainers.image.url=https://bazzite.gg
 
       # Generate tags after rechunker runs and checks the primary tag is not duplicated
