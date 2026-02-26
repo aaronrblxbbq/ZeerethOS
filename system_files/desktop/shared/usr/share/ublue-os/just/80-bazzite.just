@@ -1,5 +1,11 @@
 # vim: set ft=make :
 
+# Disable NTFS/exFAT monitor and notification service
+_disable-ntfs-service:
+    #!/usr/bin/bash
+    systemctl disable --now --user ntfs-nag.service
+    systemctl mask --now --user ntfs-nag.service
+
 # Install System Flatpaks (Support for Rebasing)
 _install-system-flatpaks:
     #!/usr/bin/bash
@@ -100,7 +106,11 @@ configure-grub ACTION="":
     # Function to get the current GRUB menu_auto_hide setting and explain it
     get_current_setting() {
       local CURRENT_SETTING
-      CURRENT_SETTING=$(sudo grub2-editenv - list | grep menu_auto_hide | cut -d= -f2)
+      if sudo grub2-editenv - list | grep -q '^menu_auto_hide='; then
+        CURRENT_SETTING=$(sudo grub2-editenv - list | awk -F= '/menu_auto_hide/ {print $2}')
+      else
+        CURRENT_SETTING=""
+      fi
       if [ -z "$CURRENT_SETTING" ]; then
         echo "Current GRUB menu_auto_hide setting: ${bold}${red}Not Set (default to 0)${normal}"
         echo "Explanation:"
@@ -136,7 +146,7 @@ configure-grub ACTION="":
       local options=(
         "Hide After Successful Boot (menu_auto_hide=2)"
         "Same except when Dual Booting (menu_auto_hide=1)"
-        "Always Show Grub (menu_auto_hide=0)"
+        "Always Show Grub (unset menu_auto_hide)"
         "Exit without changes"
       )
       local choice
@@ -157,8 +167,8 @@ configure-grub ACTION="":
           sudo grub2-editenv - set menu_auto_hide=1
           echo "GRUB menu is now set to ${bold}${yellow}Hide After Successful Boot except when Dual Booting${normal}."
           ;;
-        *"(menu_auto_hide=0)"*|show)
-          sudo grub2-editenv - set menu_auto_hide=0
+        *"(unset menu_auto_hide)"*|show)
+          sudo grub2-editenv - unset menu_auto_hide
           echo "GRUB menu is now set to ${bold}${green}Always Show${normal}."
           ;;
         *"exit without changes"*|exit)
@@ -451,30 +461,31 @@ bazzite-cli:
     # Remove bling, handle if old method
     function remove-bling(){
     shell="$1"
+    local line=""
     if [[ "${shell}" == "fish" ]]; then
         sed -i '/### bling.fish source start/,/### bling.fish source end/d' \
             "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.fish" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.fish" \
             "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"; }
     elif [[ "${shell}" == "zsh" ]]; then
         sed -i '/### bling.sh source start/,/### bling.sh source end/d' \
             "${ZDOTDIR:-$HOME}/.zshrc" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.sh" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.sh" \
             "${ZDOTDIR:-$HOME}/.zshrc" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${ZDOTDIR:-$HOME}/.zshrc"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${ZDOTDIR:-$HOME}/.zshrc"; }
     elif [[ "${shell}" == "bash" ]]; then
         sed -i '/### bling.sh source start/,/### bling.sh source end/d' \
             "${HOME}/.bashrc" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.sh" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.sh" \
             "${HOME}/.bashrc" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${HOME}/.bashrc"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${HOME}/.bashrc"; }
     fi
     }
 
@@ -550,6 +561,125 @@ toggle-password-feedback ACTION="":
       echo 'Defaults pwfeedback' | sudo tee $PWFEEDBACK_FILE
       echo "enabled, restart terminal to see changes"
     fi
+
+# Toggle global Proton FSR4 upgrade on RDNA4 GPUs; upgrades FSR 3.1+ → FSR 4 on Proton 10 or GE 10-25 or later
+[group("gaming")]
+toggle-global-fsr4 ACTION="":
+    #!/usr/bin/bash
+    set -euo pipefail
+    source /usr/lib/ujust/ujust.sh
+
+    FILE="$HOME/.config/environment.d/99-proton-fsr4.conf"
+
+    CURRENT="Disabled"
+    if [[ -f "$FILE" ]]; then
+        CURRENT="Enabled"
+    fi
+
+    OPTION="{{ ACTION }}"
+    if [[ -z "$OPTION" ]]; then
+        echo -e "${bold}Global FSR4 (RDNA4):${normal} $CURRENT"
+        echo ""
+        echo "Enables Proton's FSR4 upgrade path on RDNA4 GPUs (e.g. RX 9070 XT)."
+        echo "When enabled, Proton can upgrade games using FSR 3.1+ to FSR 4"
+        echo "and automatically fetch the required FSR4 DLL."
+        echo ""
+        OPTION="$(ugum choose "Enable" "Disable" "Exit without saving")"
+    fi
+
+    case "$OPTION" in
+        Enable|enable)
+            mkdir -p "$HOME/.config/environment.d"
+            echo "PROTON_FSR4_UPGRADE=1" > "$FILE"
+            echo -e "${green}${bold}Enabled${normal}: PROTON_FSR4_UPGRADE=1"
+            ;;
+        Disable|disable)
+            rm -f "$FILE"
+            echo -e "${red}${bold}Disabled${normal}: PROTON_FSR4_UPGRADE removed"
+            ;;
+        *)
+            echo "No changes made."
+            ;;
+    esac
+
+# Toggle global Proton FSR4 upgrade on RDNA3 GPUs; upgrades FSR 3.1+ → FSR 4, only compatible with Proton GE, Proton EM, or similar forks
+[group("gaming")]
+toggle-global-fsr4-rdna3 ACTION="":
+    #!/usr/bin/bash
+    set -euo pipefail
+    source /usr/lib/ujust/ujust.sh
+
+    FILE="$HOME/.config/environment.d/99-proton-fsr4-rdna3.conf"
+
+    CURRENT="Disabled"
+    if [[ -f "$FILE" ]]; then
+        CURRENT="Enabled"
+    fi
+
+    OPTION="{{ ACTION }}"
+    if [[ -z "$OPTION" ]]; then
+        echo -e "${bold}Global FSR4 (RDNA3):${normal} $CURRENT"
+        echo ""
+        echo "Enables Proton's FSR4 upgrade path on RDNA3 GPUs (e.g. RX 7900 XTX)."
+        echo "When enabled, Proton can upgrade games using FSR 3.1+ to FSR 4 (FP8 Emulation)"
+        echo "and automatically fetch the required FSR4 DLL."
+        echo ""
+        echo -e "${bold}Note:${normal} This is only compatible with Proton GE, Proton EM, or similar forks."
+        echo ""
+        OPTION="$(ugum choose "Enable" "Disable" "Exit without saving")"
+    fi
+
+    case "$OPTION" in
+        Enable|enable)
+            mkdir -p "$HOME/.config/environment.d"
+            echo "PROTON_FSR4_RDNA3_UPGRADE=1" > "$FILE"
+            echo -e "${green}${bold}Enabled${normal}: PROTON_FSR4_RDNA3_UPGRADE=1"
+            ;;
+        Disable|disable)
+            rm -f "$FILE"
+            echo -e "${red}${bold}Disabled${normal}: PROTON_FSR4_RDNA3_UPGRADE removed"
+            ;;
+        *)
+            echo "No changes made."
+            ;;
+    esac
+
+# Toggle global Proton DLSS upgrade; updates DLSS DLLs for Proton
+[group("gaming")]
+toggle-global-dlss ACTION="":
+    #!/usr/bin/bash
+    set -euo pipefail
+    source /usr/lib/ujust/ujust.sh
+    FILE="$HOME/.config/environment.d/99-proton-dlss.conf"
+    CURRENT="Disabled"
+    if [[ -f "$FILE" ]]; then
+        CURRENT="Enabled"
+    fi
+    OPTION="{{ ACTION }}"
+    if [[ -z "$OPTION" ]]; then
+        echo -e "${bold}Global DLSS Upgrade:${normal} $CURRENT"
+        echo ""
+        echo "Enables Proton to use the latest NVIDIA DLSS runtime/DLLs."
+        echo "Automatically fetches and replaces DLSS DLLs."
+        echo "Only compatible with Proton GE, Proton EM, or similar forks."
+        echo ""
+        OPTION="$(ugum choose "Enable" "Disable" "Exit without saving")"
+    fi
+    case "$OPTION" in
+        Enable|enable)
+            mkdir -p "$HOME/.config/environment.d"
+            echo "PROTON_DLSS_UPGRADE=1" > "$FILE"
+            echo -e "${green}${bold}Enabled${normal}: PROTON_DLSS_UPGRADE=1"
+            echo "You may need to restart Steam for changes to take effect."
+            ;;
+        Disable|disable)
+            rm -f "$FILE"
+            echo -e "${red}${bold}Disabled${normal}: PROTON_DLSS_UPGRADE removed"
+            ;;
+        *)
+            echo "No changes made."
+            ;;
+    esac
 
 # Toggle whether Steam launches with the -steamdeck flag, which causes Big Picture / Game Mode to emulate Steam Deck behavior. Disabling this can prevent games from forcing Steam Deck-specific assets, such as lower-resolution textures.
 [group("gaming")]
