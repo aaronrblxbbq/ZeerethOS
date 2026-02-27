@@ -182,7 +182,7 @@ rebase_to() {
 }
 
 pick_image() {
-  local provider="${1:-ublue-os}"
+  local provider="${1:-aaronrblxbbq}"
   local variants=$(available_variants "$provider")
   
   if [[ -z "$variants" ]]; then
@@ -342,9 +342,9 @@ interactive_menu() {
         
       "Custom Provider")
         clear
-        echo "Enter provider name (default: ublue-os):"
+        echo "Enter provider name (default: aaronrblxbbq):"
         read -r provider
-        provider="${provider:-ublue-os}"
+        provider="${provider:-aaronrblxbbq}"
         provider=$(echo "$provider" | tr '[:upper:]' '[:lower:]')
         
         local img=$(pick_image "$provider")
